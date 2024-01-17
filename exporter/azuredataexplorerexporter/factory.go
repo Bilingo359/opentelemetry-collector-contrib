@@ -17,15 +17,16 @@ import (
 
 const (
 	// The value of "type" key in configuration.
-	managedIngestType  = "managed"
-	queuedIngestTest   = "queued"
-	otelDb             = "oteldb"
-	defaultMetricTable = "OTELMetrics"
-	defaultLogTable    = "OTELLogs"
-	defaultTraceTable  = "OTELTraces"
-	metricsType        = 1
-	logsType           = 2
-	tracesType         = 3
+	managedIngestType           = "managed"
+	queuedIngestTest            = "queued"
+	otelDb                      = "oteldb"
+	defaultMetricTable          = "OTELMetrics"
+	defaultLogTable             = "OTELLogs"
+	defaultTraceTable           = "OTELTraces"
+	serviceAccountTokenFilePath = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+	metricsType                 = 1
+	logsType                    = 2
+	tracesType                  = 3
 )
 
 // Creates a factory for the ADX Exporter
@@ -42,11 +43,12 @@ func NewFactory() exporter.Factory {
 // Create default configurations
 func createDefaultConfig() component.Config {
 	return &Config{
-		Database:      otelDb,
-		MetricTable:   defaultMetricTable,
-		LogTable:      defaultLogTable,
-		TraceTable:    defaultTraceTable,
-		IngestionType: queuedIngestTest,
+		Database:                    otelDb,
+		MetricTable:                 defaultMetricTable,
+		LogTable:                    defaultLogTable,
+		TraceTable:                  defaultTraceTable,
+		IngestionType:               queuedIngestTest,
+		ServiceAccountTokenFilePath: serviceAccountTokenFilePath,
 	}
 }
 

@@ -63,6 +63,10 @@ exporters:
     # Set to "system" for system-assigned managed identity.
     # Set the MI client Id (GUID) for user-assigned managed identity.
     managed_identity_id: "z80da32c-108c-415c-a19e-643f461a677a"
+    # Client ID used to authenticate with when workload identity is enabled on the AKS cluster
+    workload_identity_client_id: ""
+    # Path where the kubernetes service account token is mounted, defaults to /var/run/secrets/kubernetes.io/serviceaccount/token (automount path for service accounts)
+    service_account_token_file_path: ""
     # Database for the logs
     db_name: "oteldb"
     # Metric table name

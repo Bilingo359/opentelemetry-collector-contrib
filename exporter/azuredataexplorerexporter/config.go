@@ -24,6 +24,8 @@ type Config struct {
 	ApplicationKey                 configopaque.String `mapstructure:"application_key"`
 	TenantID                       string              `mapstructure:"tenant_id"`
 	ManagedIdentityID              string              `mapstructure:"managed_identity_id"`
+	WorkloadIdentityClientID       string              `mapstructure:"workload_identity_client_id"`
+	ServiceAccountTokenFilePath    string              `mapstructure:"service_account_token_file_path"`
 	Database                       string              `mapstructure:"db_name"`
 	MetricTable                    string              `mapstructure:"metrics_table_name"`
 	LogTable                       string              `mapstructure:"logs_table_name"`
@@ -41,14 +43,15 @@ func (adxCfg *Config) Validate() error {
 	}
 	isAppAuthEmpty := isEmpty(adxCfg.ApplicationID) || isEmpty(string(adxCfg.ApplicationKey)) || isEmpty(adxCfg.TenantID)
 	isManagedAuthEmpty := isEmpty(adxCfg.ManagedIdentityID)
+	isWorkloadIdentityAuthEmpty := isEmpty(adxCfg.WorkloadIdentityClientID) || isEmpty(adxCfg.TenantID)
 	isClusterURIEmpty := isEmpty(adxCfg.ClusterURI)
 	// Cluster URI is the target ADX cluster
 	if isClusterURIEmpty {
 		return errors.New(`clusterURI config is mandatory`)
 	}
-	// Parameters for AD App Auth or Managed Identity Auth are mandatory
-	if isAppAuthEmpty && isManagedAuthEmpty {
-		return errors.New(`either ["application_id" , "application_key" , "tenant_id"] or ["managed_identity_id"] are needed for auth`)
+	// Parameters for AD App Auth, Managed Identity Auth or Workload Identity Auth are mandatory
+	if isAppAuthEmpty && isManagedAuthEmpty && isWorkloadIdentityAuthEmpty {
+		return errors.New(`either ["application_id" , "application_key" , "tenant_id"], ["managed_identity_id"] or ["workload_identity_client_id", "token_file_path", "tenant_id"] are needed for auth`)
 	}
 
 	if !(adxCfg.IngestionType == managedIngestType || adxCfg.IngestionType == queuedIngestTest || isEmpty(adxCfg.IngestionType)) {
@@ -60,6 +63,13 @@ func (adxCfg *Config) Validate() error {
 		_, err := uuid.Parse(strings.TrimSpace(adxCfg.ManagedIdentityID))
 		if err != nil {
 			return errors.New("managed_identity_id should be a UUID string (for User Managed Identity) or system (for System Managed Identity)")
+		}
+	}
+
+	if !isEmpty(adxCfg.WorkloadIdentityClientID) {
+		_, err := uuid.Parse(strings.TrimSpace(adxCfg.WorkloadIdentityClientID))
+		if err != nil {
+			return errors.New("workload_identity_client_id should be a UUID string")
 		}
 	}
 	return nil
